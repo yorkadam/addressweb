@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="dataSourceStorage">
+  <data-source name="Sqlite (Xerial) - pim.db" uuid="404471b8-b049-4736-a7aa-8ea4afbd24ad">
+    <database-info product="SQLite" version="3.8.9" jdbc-version="2.1" driver-name="SQLiteJDBC" driver-version="native"/>
+    <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed"/>
+    <schema name="" catalog=""/>
+    <table name="address" schema="" catalog="" type="TABLE">
+      <column name="addressid" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="personid" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="addressline1" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="addressline2" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="pobox" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="city" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="state" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="zipcode" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="zip4" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="postalcode" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="status" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="sequenceno" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4" def="JzAn"/>
+      <column name="typeid" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <primary-key columns="addressid"/>
+      <foreign-key name="#FAKE_address_1" columns="personid" ref-table="person" ref-schema="" ref-catalog="" ref-columns="personid" update-rule="3" delete-rule="0" deferrability="1"/>
+      <exported-key name="#FAKE_address_gps_1" table="address_gps" schema="" catalog="" columns="addressid"/>
+    </table>
+    <table name="address_gps" schema="" catalog="" type="TABLE">
+      <column name="addressid" sqlType="INTEGER" precision="0" scale="-1" nullable="false" jdbcType="4"/>
+      <column name="headinga" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="headingb" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="degreesa" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="minutesa" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="secondsa" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="degreesb" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="minutesb" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="secondsb" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <foreign-key name="#FAKE_address_gps_1" columns="addressid" ref-table="address" ref-schema="" ref-catalog="" ref-columns="addressid" update-rule="3" delete-rule="0" deferrability="1"/>
+      <index name="unique_gps_index" unique="true" columns="addressid"/>
+    </table>
+    <table name="codes" schema="" catalog="" type="TABLE">
+      <column name="typeid" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="typecode" sqlType="CHARACTER(20)" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="typedescription" sqlType="CHARACTER(150)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="referencetype" sqlType="CHARACTER(10)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <primary-key columns="typeid"/>
+    </table>
+    <table name="comments" schema="" catalog="" type="TABLE">
+      <column name="personid" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="comment" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="commentid" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <primary-key columns="commentid"/>
+      <foreign-key name="#FAKE_comments_1" columns="personid" ref-table="person" ref-schema="" ref-catalog="" ref-columns="personid" update-rule="3" delete-rule="0" deferrability="1"/>
+      <index name="personid_comments_index" unique="true" columns="personid"/>
+    </table>
+    <table name="contact" schema="" catalog="" type="TABLE">
+      <column name="contactid" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="personid" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <primary-key columns="contactid"/>
+      <foreign-key name="#FAKE_contact_1" columns="personid" ref-table="person" ref-schema="" ref-catalog="" ref-columns="personid" update-rule="3" delete-rule="0" deferrability="1"/>
+      <exported-key name="#FAKE_email_1" table="email" schema="" catalog="" columns="contactid"/>
+      <exported-key name="#FAKE_phone_1" table="phone" schema="" catalog="" columns="contactid"/>
+    </table>
+    <table name="email" schema="" catalog="" type="TABLE">
+      <column name="contactid" sqlType="INTEGER" precision="0" scale="-1" nullable="false" jdbcType="4"/>
+      <column name="emailaddress" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="sequenceno" sqlType="INTEGER" precision="0" scale="-1" nullable="false" jdbcType="4"/>
+      <column name="typeid" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <foreign-key name="#FAKE_email_1" columns="contactid" ref-table="contact" ref-schema="" ref-catalog="" ref-columns="contactid" update-rule="3" delete-rule="0" deferrability="1"/>
+    </table>
+    <table name="identification" schema="" catalog="" type="TABLE">
+      <column name="personid" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="identificationnumber" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="identificationtypeid" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="issuingauthority" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="issuingentity" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="recordlocation" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="identificationid" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <primary-key columns="identificationid"/>
+      <foreign-key name="#FAKE_identification_1" columns="personid" ref-table="person" ref-schema="" ref-catalog="" ref-columns="personid" update-rule="3" delete-rule="0" deferrability="1"/>
+    </table>
+    <table name="person" schema="" catalog="" type="TABLE">
+      <column name="personid" sqlType="CHARACTER(100)" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="firstname" sqlType="CHARACTER(30)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="lastname" sqlType="CHARACTER(30)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="middleinitial" sqlType="CHARACTER(1)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="nickname" sqlType="CHARACTER(20)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="dateofbirth" sqlType="DATE(2000000000)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="dateofdeath" sqlType="DATE(2000000000)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <primary-key columns="personid"/>
+      <exported-key name="#FAKE_address_1" table="address" schema="" catalog="" columns="personid"/>
+      <exported-key name="#FAKE_comments_1" table="comments" schema="" catalog="" columns="personid"/>
+      <exported-key name="#FAKE_contact_1" table="contact" schema="" catalog="" columns="personid"/>
+      <exported-key name="#FAKE_identification_1" table="identification" schema="" catalog="" columns="personid"/>
+      <exported-key name="#FAKE_relationship_1" table="relationship" schema="" catalog="" columns="personid"/>
+    </table>
+    <table name="phone" schema="" catalog="" type="TABLE">
+      <column name="contactid" sqlType="INTEGER" precision="0" scale="-1" nullable="false" jdbcType="4"/>
+      <column name="typeid" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="sequenceno" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="areacode" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="exchange" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="trunk" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <foreign-key name="#FAKE_phone_1" columns="contactid" ref-table="contact" ref-schema="" ref-catalog="" ref-columns="contactid" update-rule="3" delete-rule="0" deferrability="1"/>
+    </table>
+    <table name="relationship" schema="" catalog="" type="TABLE">
+      <column name="personid" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="related_personid" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="relationshiptype" sqlType="TEXT" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <column name="relationshipid" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <column name="related_person_relationshiptype" sqlType="INT" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+      <primary-key columns="relationshipid"/>
+      <foreign-key name="#FAKE_relationship_1" columns="personid" ref-table="person" ref-schema="" ref-catalog="" ref-columns="personid" update-rule="3" delete-rule="0" deferrability="1"/>
+    </table>
+    <table name="relationshipmap" schema="" catalog="" type="TABLE">
+      <column name="key" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="value" sqlType="TEXT" precision="0" scale="-1" nullable="true" jdbcType="12"/>
+      <column name="relationshiptype" sqlType="INT" precision="0" scale="-1" nullable="true" jdbcType="4"/>
+    </table>
+  </data-source>
+</component>

@@ -1,0 +1,50 @@
+
+<style type="text/css">
+    #phone_div ul {
+        list-style: none;
+        margin: 0px;
+    }
+    #phone_div label {
+        display: inline-block;
+        width: 120px;
+    }
+    #phone_boxes {
+        display: inline-block;
+        margin:0px;
+        padding:0px;
+    }
+    #phone_boxes input {
+        width: 50px;
+    }
+    #phone_sequence_number{
+        width: 163px;
+    }
+
+</style>
+<form id="phone_form" action="http://127.0.0.1:8080/index" method="post">
+<div id="phone_div">
+<ul>
+    <li>
+        <label for="phone_area_code">Phone</label><div id="phone_boxes">  <input type="text" id="phone_area_code" name="phone_area_code">
+        <input type="text" id="phone_exchange" name="phone_exchange"><input type="text" id="phone_trunk" name="phone_trunk"></div>
+    </li>
+    <li><label for="phone_sequence_number">Sequence</label><input type="text" id="phone_sequence_number" name="phone_sequence_number"> </li>
+    <li><label for="phone_type">Type</label>
+        <select id="phone_type" name="phone_type">
+            <option value="7">MOBILE</option>
+            <option value="8">INTERNET PHONE</option>
+            <option value="9">BUSINESS</option>
+            <option value="10">WORK</option>
+            <option value="11">HOME</option>
+        </select>
+    </li>
+    <li>
+        <label for="action_button_phone">Action</label>
+        <input type="button" id="action_button_phone"  name="action_button_phone" value="Phone Record Action" data-phone-action="" >
+        <input type="hidden" id="phone_pid" name="phone_pid">
+        <input type="hidden" id="phone_cid" name="phone_cid">
+
+    </li>
+</ul>
+</div>
+</form>

@@ -1,0 +1,73 @@
+
+<style type="text/css">
+    #person_div ul{
+        list-style: none;
+        margin:0;
+        padding:0;
+    }
+    #person_div label{
+        display: inline-block;
+        width: 120px;
+    }
+
+</style>
+
+<script type="text/javascript">
+
+
+function getPostData(elements) {
+    var formData = {};
+    for (var i = 0; i < elements.length; i++) {
+        var inputElement = elements[i];
+        //var elementName = inputElement.getAttribute("name");
+        var elementId = inputElement.getAttribute("id");
+        var elementValue = inputElement.value;
+        formData[elementId] = elementValue;
+    }
+    return formData;
+}
+
+
+function postInputs(){
+ var personFields = document.forms["person_form"].elements;
+    var finalValues = getPostData(personFields);
+    //Do post work here
+}
+
+
+function postInputValues() {
+    var data = $('#person_form').serialize()
+    var postURL = 'http://127.0.0.1:8080?'
+    var jqxhr = jQuery.post(postURL, data).done(
+            function (rdata, textStatus, jqXHR) {
+                //alert(jqXHR.responseText);
+                window.location.reload(true);
+            }).fail(
+            function (jqXHR, textStatus, errorThrown) {
+                alert(errorThrown);
+            })
+}
+
+</script>
+<form id="person_form" action="http://127.0.0.1:8080/index" method="post">
+<div id="person_div">
+<ul>
+    <li><input type="hidden" id="person_id" name="person_id"></li>
+    <li><label for="first_name">First Name</label><input type="text" id="first_name" name="first_name"> </li>
+    <li><label for="last_name">Last Name</label><input type="text" id="last_name" name="last_name"> </li>
+    <li><label for="middle_initial">Middle Initial</label><input type="text" id="middle_initial" name="middle_initial"></li>
+    <li><label for="nick_name">Nick Name</label><input type="text" id="nick_name" name="nick_name"></li>
+    <li><label for="birth_date">Birth Date</label><input type="text" id="birth_date" name="birth_date" placeholder="YYYY-MM-DD"> </li>
+    <li><label for="death_date">Death Date</label><input type="text" id="death_date" name="death_date" placeholder="YYYY-MM-DD"> </li>
+    <li>&nbsp;</li>
+    <li>
+        <input type="submit" id="save_button_person" value="Add Person Record" name="save_button_person">
+        <input type="submit" id="update_button_person" name="update_button_person" value="Update Person Record">
+        <input type="submit" id="delete_button_person" name="delete_button_person" value="Yes? Click Here.">
+    </li>
+</ul>
+</div>
+<div id="error">
+    error placeholder
+</div>
+</form>

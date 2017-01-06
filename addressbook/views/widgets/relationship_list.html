@@ -1,0 +1,6 @@
+ <select id="list_widget_{{widget_identifier}}" style="display: none;">
+     <option value="0" selected>---NONE---</option>
+     {% for item in relationship_list %}
+      <option value="{{item[1]}}">{{item[0]}}</option>
+     {% endfor %}
+</select>

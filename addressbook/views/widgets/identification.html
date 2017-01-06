@@ -1,0 +1,43 @@
+
+<style type="text/css">
+    #identification_div ul{
+        list-style: none;
+        margin:0;
+        padding:0;
+    }
+    #identification_div label{
+        display: inline-block;
+        width: 120px;
+    }
+
+</style>
+<form id="person_form" action="http://127.0.0.1:8080/index" method="post">
+<div id="identification_div">
+<ul>
+    <li><label for="identification_number">ID Number</label><input type="text" id="identification_number" name="identification_number" placeholder="# on id card / document"> </li>
+    <li><label for="issuing_authority">Authority</label><input type="text" id="issuing_authority" name="issuing_authority" placeholder="issuing authority"> </li>
+    <li><label for="issuing_entity">Entity</label><input type="text" id="issuing_entity" name="issuing_entity" placeholder="issuing entity"> </li>
+    <li><label for="record_location">Location</label><input type="text" id="record_location" name="record_location" placeholder="record location or file path"></li>
+    <li><label for="identification_type">Type</label>
+        <select id="identification_type" name="identification_type">
+            <option value="36">SSN ID CARD</option>
+            <option value="37">NATIVE AMERICAN DOC</option>
+            <option value="38">DRIVERS LICENSE</option>
+            <option value="39">OTHER</option>
+            <option value="40">BUSINESS / CORP ID</option>
+            <option value="41">UNIVERSITY / COLLEGE ID</option>
+            <option value="42">SCHOOL ID</option>
+            <option value="43">US MILITARY ID</option>
+            <option value="44">VISA</option>
+            <option value="45">PASSPORT</option>
+        </select>
+    </li>
+    <li>
+        <label for="action_button_identification">Action</label>
+        <input type="button" id="action_button_identification"  name="action_button_identification" value="Identification Record Action" data-identification-action="" >
+        <input type="hidden" id="identification_pid" name="identification_pid">
+        <input type="hidden" id="identification_id" name="identification_id">
+    </li>
+</ul>
+</div>
+</form>

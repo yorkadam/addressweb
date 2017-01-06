@@ -1,0 +1,21 @@
+<div id="grid_widget_{{widget_identifier}}">
+    <table id="{{grid_id}}">
+        <thead>
+        <tr>
+            {% for item_value in header %}
+            <th> {{  item_value }} </th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody id="grid_rows_{{widget_identifier}}">
+            {% for row in rows %}
+                <tr id="{{ row_id }}"><!-- TODO: row_id not working here. Bug: filling with empty string -->
+                    {% for cell_value in row %}
+                    <td>{{ cell_value }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+

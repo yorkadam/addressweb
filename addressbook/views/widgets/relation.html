@@ -1,0 +1,50 @@
+<style type="text/css">
+    #relation_search_widget ul {
+        list-style: none;
+    }
+
+    #relation_search_widget li {
+        display: inline;
+    }
+</style>
+<form id="relation_search_form" name="relation_search_form" action="/relation_search/" method="post">
+
+    <div id="relation_search_widget">
+        <ul style="list-style: none;  display:inline" id="rbx">
+            <li id="rso">
+                <select id="relation_search_options" name="relation_search_options">
+                    <option value="Select Filter">Select Filter</option>
+                    <option value="First Name">First Name</option>
+                    <option value="Last Name">Last Name</option>
+                    <option value="Address 1">Address 1</option>
+                    <option value="Address 2">Address 2</option>
+                    <option value="City">City</option>
+                    <option value="State">State</option>
+                    <option value="Zip Code">Zip</option>
+                    <option value="Phone">Phone</option>
+                    <option value="Email">Email</option>
+                    <option value="Identification">Identification</option>
+                    <option value="All" selected>All</option>
+                </select>
+            </li>
+            <li id="rb1">
+                <input type="radio" id="relation_search_contains" name="relation_search_predicate" value="contains">
+                <label for="relation_search_contains">Contains</label>
+            </li>
+            <li id="rb2">
+                <input type="radio" id="relation_search_equals" name="relation_search_predicate" value="equals">
+                <label for="relation_search_equals">Equals</label>
+            </li>
+            <li>
+                <input type="text" id="relation_search_criteria" name="relation_search_criteria">
+            </li>
+            <li id="relation_search_submit">
+                <input type="button" id="relation_search_button" name="relation_search_button" value="Search" data-relationship-action="search">
+            </li>
+        </ul>
+        <div id="action_add_related_person" style="float:right; background-color: #ffffff">
+            <input type="button" id="add_related_person_button" value="Save Relationship(s)" data-relationship-action="save"/>
+        </div>
+
+    </div>
+</form>

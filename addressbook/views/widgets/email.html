@@ -1,0 +1,37 @@
+
+<style type="text/css">
+    #email_div ul{
+        list-style: none;
+        margin:0px;
+    }
+    #email_div label{
+        display: inline-block;
+        width: 120px;
+    }
+
+</style>
+<form id="email_form" action="http://127.0.0.1:8080/index" method="post">
+<div id="email_div">
+<ul>
+    <li><label for="email_address">Email</label><input type="text" id="email_address" name="email_address"></li>
+    <li><label for="email_sequence_number">Sequence</label><input type="text" id="email_sequence_number" name="email_sequence_number"> </li>
+    <li><label for="email_type">Type</label>
+        <select id="email_type" name="email_type">
+            <option value="1">WORK</option>
+            <option value="2">HOME</option>
+            <option value="3">JUNK</option>
+            <option value="4">PERSONAL</option>
+            <option value="5">BUSINESS</option>
+            <option value="6">OTHER</option>
+            <option value="61">MARKETING</option>
+        </select>
+    </li>
+    <li>
+        <label for="action_button_email">Action</label>
+        <input type="button" id="action_button_email"  name="action_button_email" value="Email Record Action" data-email-action="" >
+        <input type="hidden" id="email_pid" name="email_pid">
+        <input type="hidden" id="email_cid" name="email_cid">
+    </li>
+</ul>
+</div>
+</form>

@@ -1,0 +1,49 @@
+<style type="text/css">
+    #search_widget ul {
+        list-style: none;
+    }
+
+    #search_widget li {
+        display: inline;
+    }
+</style>
+<form id="search_form" action="http://127.0.0.1:8080/index" method="post">
+    <div id="search_widget">
+        <ul style="list-style: none;  display:inline" id="bx">
+            <li id="so">
+                <select id="search_options" name="search_options">
+                    <option value="Select Filter">Select Filter</option>
+                    <option value="First Name">First Name</option>
+                    <option value="Last Name">Last Name</option>
+                    <option value="Address 1">Address 1</option>
+                    <option value="Address 2">Address 2</option>
+                    <option value="City">City</option>
+                    <option value="State">State</option>
+                    <option value="Zip Code">Zip</option>
+                    <option value="Phone">Phone</option>
+                    <option value="Email">Email</option>
+                    <option value="Identification">Identification</option>
+                    <option value="All" selected>All</option>
+                </select>
+            </li>
+            <li id="b1">
+                <input type="radio" id="search_contains" name="search_predicate" value="contains">
+                <label for="search_contains">Contains</label>
+            </li>
+            <li id="b2">
+                <input type="radio" id="search_equals" name="search_predicate" value="equals">
+                <label for="search_equals">Equals</label>
+            </li>
+            <li>
+                <input type="text" id="search_criteria" name="search_criteria">
+            </li>
+            <li id="search_submit">
+                <input type="submit" id="search_button" name="search_button" value="Search">
+            </li>
+        </ul>
+        <div id="action_add_person" style="float:right; background-color: #ffffff">
+            <input type="button" id="add_person_button" value="Add Person" data-person-action="add"/>
+        </div>
+
+    </div>
+</form>

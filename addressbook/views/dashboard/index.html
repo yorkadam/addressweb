@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Address Book</title>
+    <script type="text/javascript" src="/jquery-ui-1.11.4.custom/external/jquery/jquery.js"></script>
+    <script type="text/javascript" src="/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+    <link href="/jquery-ui-1.11.4.custom/jquery-ui.structure.css" rel="stylesheet">
+    <link href="/jquery-ui-1.11.4.custom/jquery-ui.theme.css" rel="stylesheet">
+<!-- TODO: refactor javascript, cleanup and consolidate common functionality and move custom javascript to separate .js files -->
+    <style type="text/css">
+        /* TODO: separate CSS into proper .css file
+        */
+        h3 {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        table {
+            text-align: left;
+            background-color: #C4E3E9;
+        }
+
+        tr:nth-child(even) {
+            background: #EEF8FA
+        }
+
+        tr:nth-child(odd) {
+            background: #C4E3E9
+        }
+
+        tr:not(:first-child):hover {
+            background-color: #E1E463;
+        }
+
+        th {
+            background-color: #3D7F8B;
+            color: white;
+            padding: 4px;
+        }
+
+        td {
+            padding: 4px;
+        }
+
+        #comment {
+            width: 100%;
+            overflow-y: scroll;
+        }
+
+        #tab_container {
+            width: 1300px;
+        }
+
+        #search_wrapper {
+            width: 1300px;
+            border: 1px solid #AAA;
+            border-top-right-radius: 4px;
+            background-color: #ffffff;
+        }
+
+        #search_toolbar {
+            background: #35414F url("/jquery-ui-1.11.4.custom/images/ui-bg_dots-small_35_35414f_2x2.png")
+            repeat scroll 50% 50%;
+        }
+        #relationship_search_toolbar {
+            background: #35414F url("/jquery-ui-1.11.4.custom/images/ui-bg_dots-small_35_35414f_2x2.png")
+            repeat scroll 50% 50%;
+        }
+
+        #footer {
+            background-color: #ffffff;
+        }
+
+        .scroll {
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .contact {
+            height: 200px;
+        }
+
+        .search {
+            height: 350px;
+            padding: 1em 1.4em;
+            overflow-y: auto;
+        }
+
+        .grid {
+            width: 100%;
+        }
+
+        .tabber {
+            overflow: auto;
+        }
+
+        .widget-title {
+            margin: 0px;
+            padding: 0px;
+            display: inline-block;
+        }
+
+        .widget-action {
+            float: right;
+        }
+
+        .widget-edit {
+            float: left;
+        }
+
+        body {
+            width: 1301px;
+            margin: 0 auto;
+            background-color: #2c4359
+        }
+
+        .selected {
+            color:darkgreen;
+            font-size: x-large;
+            background-color: lightsalmon;
+        }
+    </style>
+</head>
+<body>
+<form id="personForm1" name="personForm1" action="http://127.0.0.1:8080/index" method="post">
+    <input type="hidden" id="selected_person_id" name="selected_person_id" value="{{selected_person}}">
+</form>
+
+<div id="content" style="margin: 0 auto;">
+    <div id="widget_dialogs">
+        <div id="relationship-dialog-confirm" title="Delete This Relationship?">
+            <p>
+               <div id="relationship-delete-message" style="display:none">
+                The selected relationship will be deleted: Are you sure?
+                </div>
+            </p>
+        </div>
+        <div id="person_wrapper" class="widget-edit">
+            <h3>Personal Details</h3>
+            {% include "widgets/person.html" %}
+        </div>
+        <div id="address_wrapper" class="widget-edit">
+            <h3>Address Details</h3>
+            {% include "widgets/address.html" %}
+        </div>
+        <div id="id_wrapper" class="widget-edit">
+            <h3>Identification Details</h3>
+            {% include "widgets/identification.html" %}
+        </div>
+        <div id="contact_phone_wrapper" class="widget-edit">
+            <h3>Phone Contact Details</h3>
+            {% include "widgets/phone.html" %}
+        </div>
+        <div id="contact_email_wrapper" class="widget-edit">
+            <h3>Email Contact Details</h3>
+            {% include "widgets/email.html" %}
+        </div>
+        <div id="person_relationship_wrapper">
+            <div id="relationship_search_wrapper">
+        <div id="relationship_search_toolbar">
+            {% include "widgets/relation.html" %}
+        </div>
+        <div id="relationship_search_scroll" class="search">
+            <div id="relationship_search_results" class="ui-widget">
+                {% set widget_identifier = "100" %}
+                {% set header = relationship_search_header %}
+                {% set rows = relationship_search_rows %}
+                {% set grid_id = "relationship_searchResultGrid" %}
+                {% include "widgets/grid.html" %}
+            </div>
+        </div>
+    </div>
+    </div>
+
+    </div>
+    <div id="menu_wrapper">
+        <div id="menu_wrapper_contents" style="background-color: white">
+            <h1>Personal Address Book - Beta</h1>
+        </div>
+        <hr>
+    </div>
+    <div id="lookup_list_relations">
+        {% set widget_identifier = "101" %}
+        {% set relationship_list = relationship_list %}
+    </div>
+    <div id="search_wrapper">
+        <div id="search_toolbar">
+            {% include "widgets/search.html" %}
+            {% include "widgets/relationship_list.html" %}
+        </div>
+        <div id="search_scroll" class="search">
+            <div id="search_results" class="ui-widget">
+                {% set widget_identifier = "1" %}
+                {% set header = search_header %}
+                {% set rows = search_rows %}
+                {% set grid_id = "searchResultGrid" %}
+                {% include "widgets/grid.html" %}
+            </div>
+        </div>
+    </div>
+    <div id="detail_wrapper">
+        <div id="selected_person_wrapper" style="background-color: white; width:1300px">
+            <h2 id="selected_person_header">Seleced Person:  {{selected_name}}</h2>
+        </div>
+        <div id="tab_container">
+            <div id="tabs">
+                <ul>
+                    <li><a href="#tabs_1">Contacts</a></li>
+                    <li><a href="#tabs_2">Addresses</a></li>
+                    <li><a href="#tabs_3">Identification</a></li>
+                    <li><a href="#tabs_4">Relationships</a></li>
+                    <li><a href="#tabs_5">Comments</a></li>
+                </ul>
+                <div id="tabs_1" class="tabber">
+                    <div id="contacts_wrapper" class="grid">
+                        <div>
+                            <h3 class="widget-title">Phone Numbers</h3>
+                            <span id="add_phone" class="widget-action" data-phone-action="add">Add Phone</span>
+                        </div>
+                        <div id="phone_wrapper">
+                            <div id="phone_scroll" class="scroll contact">
+                                {% set widget_identifier = "2" %}
+                                {% set grid_id = "phoneGrid" %}
+                                {% set header = phone_header %}
+                                {% set rows = phone_rows %}
+                                {% include "widgets/grid.html" %}
+                            </div>
+                        </div>
+                        &nbsp;
+                        <div>
+                            <h3 class="widget-title">Email Addresses</h3>
+                            <span class="widget-action" id="add_email" data-email-action="add">Add Email</span>
+                        </div>
+                        <div id="email_wrapper">
+                            <div id="email_scroll" class="scroll contact">
+                                {% set widget_identifier = "3" %}
+                                {% set grid_id = "emailGrid" %}
+                                {% set header = email_header %}
+                                {% set rows = email_rows %}
+                                {% include "widgets/grid.html" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tabs_2" class="tabber">
+                    <div id="address_list">
+                        <div>
+                            <h3 class="widget-title">Addresses</h3>
+                            <span class="widget-action" id="add_address" data-address-action="add">Add Address</span>
+                        </div>
+                        <div id="address_scroll" class="scroll">
+                            {% set widget_identifier = "4" %}
+                            {% set grid_id = "addressGrid" %}
+                            {% set header = address_header %}
+                            {% set rows = address_rows %}
+                            {% include "widgets/grid.html" %}
+                        </div>
+                    </div>
+                </div>
+                <div id="tabs_3" class="tabber">
+                    <div id="id_list" class="grid">
+                        <div>
+                            <h3 class="widget-title">Identification List</h3>
+                            <span class="widget-action" id="add_identification" data-identification-action="add">
+                                Add Identification</span>
+                        </div>
+                        <div id="identification_scroll" class="scroll">
+                            {% set widget_identifier = "5" %}
+                            {% set grid_id = "identificationGrid" %}
+                            {% set header = id_header %}
+                            {% set rows = id_rows %}
+                            {% include "widgets/grid.html" %}
+                        </div>
+                    </div>
+                </div>
+                <div id="tabs_4" class="tabber">
+                    <div id="relationship_wrapper" class="grid">
+                        <h3 class="widget-title">Relationships</h3>
+                        <span id="add_relation" class="widget-action" data-relationship-action="add">
+                            Add Relationship</span>
+                        <div id="relationship_scroll" class="scroll">
+                            {% set widget_identifier = "6" %}
+                            {% set grid_id = "relationshipGrid" %}
+                            {% set header = relation_header %}
+                            {% set rows = relation_rows %}
+                            {% include "widgets/grid.html" %}
+                        </div>
+                    </div>
+                </div>
+                <div id="tabs_5" class="tabber">
+                    <h3>Comments and Additional Information</h3>
+                    <textarea id="comment" name="comment" onchange="commentHandler(this);"
+                              data-comment-id="{{comment_id}}">{{ comment_text }}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "widgets/footer.html" %}
+</div>
+<script>
+    $(function () {
+        $("#person_wrapper").dialog({
+            autoOpen: false,
+            title: "Add / Edit Person",
+            width: "450px"
+        });
+
+        $("#address_wrapper").dialog({
+            autoOpen: false,
+            title: "Add / Edit Address",
+            width: "450px"
+        });
+
+        $("#id_wrapper").dialog({
+            autoOpen: false,
+            title: "Add / Edit Identification",
+            width: "450px"
+        });
+        $("#contact_phone_wrapper").dialog({
+            autoOpen: false,
+            title: "Add / Edit Phone Contact",
+            width: "450px"
+        });
+        $("#contact_email_wrapper").dialog({
+            autoOpen: false,
+            title: "Add / Edit Email Contact",
+            width: "450px"
+        });
+
+        $("#button").on("click", function () {
+            $("#dialog").dialog("open");
+        });
+
+        $("#person_relationship_wrapper").dialog({
+            autoOpen: false,
+            title: "Add Relationship",
+            width: "1050px"
+        });
+
+    });
+
+    function set_tab_controls_height() {
+        // Set all tabs to height of tab 1
+        var height = $("#tabs_1").height();
+        $("#tabs_2").css("height", height);
+        $("#tabs_3").css("height", height);
+        $("#tabs_4").css("height", height);
+        $("#tabs_5").css("height", height);
+
+        // Scrolls
+        $("#address_scroll").css("height", height - 40);
+        $("#identification_scroll").css("height", height - 40);
+        $("#relationship_scroll").css("height", height - 40);
+        //Set comment control height
+        $("#comment").css("height", height - 40);
+    }
+
+    function set_grid_widths() {
+        document.getElementById("phoneGrid").className = "grid";
+        document.getElementById("emailGrid").className = "grid";
+        document.getElementById("identificationGrid").className = "grid";
+        document.getElementById("addressGrid").className = "grid";
+        document.getElementById("relationshipGrid").className = "grid";
+        document.getElementById("searchResultGrid").className = "grid";
+        document.getElementById("relationship_searchResultGrid").className = "grid";
+    }
+
+    set_tab_controls_height();
+    set_grid_widths();
+
+    $(function () {
+        $("#tabs").tabs();
+    });
+    $(function () {
+        $("#b1").buttonset();
+    });
+    $(function () {
+        $("#b2").buttonset();
+    });
+
+    $(function () {
+        $("#rb1").buttonset();
+    });
+    $(function () {
+        $("#rb2").buttonset();
+    });
+
+    $(function () {
+        $("#search_submit").buttonset();
+    });
+
+    $(function () {
+        $("#relation_search_submit").buttonset();
+    });
+
+    function setClickActions() {
+        // ------- NEW AJAXIFIED ACTIONS ------------------------------------
+        var action_button_phone = document.getElementById('action_button_phone');
+        action_button_phone.setAttribute('onclick', 'phoneHandler(this, id)');
+
+        var action_button_email = document.getElementById('action_button_email');
+        action_button_email.setAttribute('onclick', 'emailHandler(this, id)');
+
+        var action_button_address = document.getElementById('action_button_address');
+        action_button_address.setAttribute('onclick', 'addressHandler(this, id)');
+
+        var action_button_identification = document.getElementById('action_button_identification');
+        action_button_identification.setAttribute('onclick', 'identificationHandler(this, id)');
+
+        // --------END NEW AJAXIFIED ACTIONS---------------------------------
+        var addIdentificationAction = document.getElementById("add_identification");
+        addIdentificationAction.setAttribute('onclick', 'identificationHandler(this, id)');
+
+        var addPhoneAction = document.getElementById("add_phone");
+        addPhoneAction.setAttribute('onclick', 'phoneHandler(this, id)');
+
+        var addEmailAction = document.getElementById("add_email");
+        addEmailAction.setAttribute('onclick', 'emailHandler(this, id)');
+
+        var addAddressAction = document.getElementById("add_address");
+        addAddressAction.setAttribute('onclick', 'addressHandler(this, id)');
+
+        var addPersonButton = document.getElementById('add_person_button');
+        addPersonButton.setAttribute('onclick', 'openPersonDialog(this,id)');
+
+        var addRelationshipAction = document.getElementById('add_relation');
+        addRelationshipAction.setAttribute('onclick', 'relationshipHandler(this,id)');
+
+        var savePersonButton = document.getElementById('save_button_person');
+        // savePersonButton.setAttribute('onclick', "testPost('person_form')");
+        savePersonButton.setAttribute('onclick', "submit");
+
+        var saveRelatedPersonButton = document.getElementById('add_related_person_button');
+        saveRelatedPersonButton.setAttribute('onclick', 'relationshipHandler(this,id)');
+
+        var searchButton = document.getElementById('search_button');
+        //searchButton.setAttribute('onclick',"testPost('search_form')");
+        searchButton.setAttribute('onclick',"submit");
+
+        var relation_searchButton = document.getElementById('relation_search_button');
+        relation_searchButton.setAttribute('onclick',"relationshipHandler(this,id);");
+
+        var results_table = document.getElementById("searchResultGrid");
+        var search_rows = results_table.getElementsByTagName("tr");
+
+        for (var i = 0; i < search_rows.length; i++){
+            if(i > 0) {
+                var cells = search_rows[i].cells;
+                var link = cells[1].getElementsByTagName("a");
+                var linkid = link[0].id;
+                var fun = "selectRow(this,'" + linkid + "');";
+                cells[0].setAttribute('onclick', fun)
+            }
+        }
+    }
+
+    function openPersonDialog(sender, id) {
+        clearPersonDialog();
+        var action = sender.getAttribute("data-person-action");
+        document.getElementById("person_id").value = id;
+        switch(action) {
+            case "edit":
+                $('#person_wrapper').dialog('option', 'title', 'Edit Person Record');
+                $("#save_button_person").hide();
+                $("#delete_button_person").hide();
+                $("#update_button_person").show();
+                break;
+            case "delete":
+                $('#person_wrapper').dialog('option', 'title', 'Delete Person Record');
+                $("#save_button_person").hide();
+                $("#delete_button_person").show();
+                $("#update_button_person").hide();
+                break;
+            case "add":
+                //$("#person_wrapper").title="Add New Person Record";
+                $('#person_wrapper').dialog('option', 'title', 'Add New Person Record');
+                $("#save_button_person").show();
+                $("#delete_button_person").hide();
+                $("#update_button_person").hide();
+                break;
+        }
+
+        $("#person_wrapper").dialog('open');
+        var rowCells = sender.parentElement.parentNode.cells;
+        for (var i = 0; i < rowCells.length; i++) {
+            switch (i) {
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    document.getElementById("first_name").value = rowCells[i].textContent;
+                    break;
+                case 4:
+                    document.getElementById("last_name").value = rowCells[i].textContent;
+                    break;
+                case 5:
+                    document.getElementById("middle_initial").value = rowCells[i].textContent;
+                    break;
+                case 6:
+                    document.getElementById("nick_name").value = rowCells[i].textContent;
+                    break;
+                case 7:
+                    document.getElementById("birth_date").value = rowCells[i].textContent;
+                    break;
+                case 8:
+                    document.getElementById("death_date").value = rowCells[i].textContent;
+                    break;
+                case 9:
+                    break;
+            }
+        }
+    }
+
+    // TODO: refactor all the "clear" dialog to generic iterations to
+    // remove the duplicate functionality.
+    function clearPersonDialog() {
+        document.getElementById("first_name").value = "";
+        document.getElementById("last_name").value = "";
+        document.getElementById("middle_initial").value = "";
+        document.getElementById("nick_name").value = "";
+        document.getElementById("birth_date").value = "";
+        document.getElementById("death_date").value = "";
+        document.getElementById("person_id").value = "";
+    }
+
+    function clearPhoneDialog() {
+        document.getElementById("phone_area_code").value = "";
+        document.getElementById("phone_exchange").value = "";
+        document.getElementById("phone_trunk").value = "";
+        document.getElementById("phone_sequence_number").value = "";
+        document.getElementById("phone_pid").value = "";
+        document.getElementById("phone_cid").value = "";
+    }
+
+    function clearEmailDialog() {
+        document.getElementById("email_address").value = "";
+        document.getElementById("email_sequence_number").value = "";
+        document.getElementById("email_pid").value = "";
+        document.getElementById("email_cid").value = "";
+    }
+
+    function clearIdDialog() {
+        document.getElementById("identification_number").value = "";
+        document.getElementById("issuing_authority").value = "";
+        document.getElementById("issuing_entity").value = "";
+        document.getElementById("record_location").value = "";
+        document.getElementById("identification_id").value = "";
+        document.getElementById("identification_pid").value = "";
+
+    }
+
+    function clearAddressDialog() {
+        document.getElementById("address_line_1").value = "";
+        document.getElementById("address_line_2").value = "";
+        document.getElementById("po_box").value = "";
+        document.getElementById("city").value = "";
+        document.getElementById("state").value = "";
+        document.getElementById("zip_code").value = "";
+        document.getElementById("zip_4").value = "";
+        document.getElementById("postal_code").value = "";
+        document.getElementById("address_status").value = "";
+        document.getElementById("address_sequence_number").value = "";
+        document.getElementById("address_pid").value = "";
+        document.getElementById("address_aid").value = "";
+    }
+// TODO: place this with other calls where calling occurs not mixed in with function defs.
+setClickActions();
+
+function selectRow(sender, id){
+    // var rowCells = sender.parentElement.parentNode.cells;
+    document.getElementById("selected_person_id").value = id;
+    //document.getElementById('selected_person_header').value = rowCells[2].textContent;
+    var theForm = document.getElementById("personForm1").submit();
+}
+
+// This prevents Chrome from navigating away when trying to get the dialog box.
+// This is only tells JQuery UI controls under chrome not to navigate, so other links not affected
+$( "a" ).click(function( event ) {
+event.preventDefault();
+});
+
+
+function hideColumn(tableId, columnIndex) {
+    var table = document.getElementById(tableId);
+    var detail_rows = table.getElementsByTagName("tr");
+    for (var i = 0; i < detail_rows.length; i++) {
+        if (i >= 0) {
+            var cells = detail_rows[i].cells;
+            cells[columnIndex].setAttribute('style', 'display:none');
+        }
+    }
+}
+
+// Hide columns not displayed by default
+$(document).ready(function() {
+    hideColumn('addressGrid',1);
+    hideColumn('addressGrid',2);
+    hideColumn('addressGrid',5);
+    hideColumn('addressGrid',9);
+    hideColumn('addressGrid',10);
+    hideColumn('addressGrid',13);
+
+    hideColumn('phoneGrid',1);
+    hideColumn('phoneGrid',2);
+    hideColumn('phoneGrid',3);
+    hideColumn('phoneGrid',4);
+    hideColumn('phoneGrid',5);
+    hideColumn('phoneGrid',6);
+
+    hideColumn('emailGrid',1);
+    hideColumn('emailGrid',3);
+    hideColumn('emailGrid',4);
+
+    hideColumn('identificationGrid',1);
+    hideColumn('identificationGrid',3);
+    hideColumn('identificationGrid',8);
+
+    hideColumn('searchResultGrid',2);
+
+    hideColumn('relationship_searchResultGrid',0);
+
+});
+
+    //------------------------ LOAD SEARCH ROWS START -------------
+
+function fillSearchGrid(sender, data)  {
+    var data_array = [];
+    var people = JSON.parse(data);
+    var row_table = document.getElementById("relationship_searchResultGrid");
+    var row_body_id = row_table.getElementsByTagName("tbody")[0].id;
+    var row_body = document.getElementById(row_body_id);
+
+    for (var key in people) {
+        var person = people[key];
+        var row_array = [];
+        var pid = person.person_id;
+        var fn = person.first_name;
+        var ln = person.last_name;
+        var mi = person.middle_initial;
+        var nn = person.nick_name;
+        var dob = person.date_of_birth;
+        var dod = person.date_of_death;
+        row_array.push(pid, fn, ln, mi, nn, dob, dod);
+        data_array.push(row_array)
+    }
+
+    function clear_rows(){
+        while(row_body.rows.length > 0) {
+            row_body.deleteRow(0);
+        }
+    }
+
+    clear_rows();
+
+    function load_rows() {
+        //TODO make this a generic function so we can reuse it.
+        var list_type = "relationship_list_";
+        var row_id = 0;
+        data_array.forEach(function (entry) {
+            //Insert New Row
+            var row = row_body.insertRow(row_id);
+            var data_row_id = document.createAttribute("id");
+            data_row_id.value = "related_X".replace("X", entry[0]);
+            row.setAttributeNode(data_row_id);
+
+            var data_row_key = document.createAttribute("data-key");
+            data_row_key.value = "X".replace("X", entry[0]);
+            row.setAttributeNode(data_row_key);
+
+            var person_id_cell = row.insertCell(0);
+            var first_name_cell = row.insertCell(1);
+            var last_name_cell = row.insertCell(2);
+            var middle_initial_cell = row.insertCell(3);
+            var nickname_cell = row.insertCell(4);
+            var dob_cell = row.insertCell(5);
+            var dod_cell = row.insertCell(6);
+            var select_relation_cell = row.insertCell(7);
+
+            person_id_cell.innerHTML = entry[0];
+            first_name_cell.innerHTML = entry[1];
+            last_name_cell.innerHTML = entry[2];
+            middle_initial_cell.innerHTML = entry[3];
+            nickname_cell.innerHTML = entry[4];
+            dob_cell.innerHTML = entry[5];
+            dod_cell.innerHTML = entry[6];
+            select_relation_cell.appendChild(GetClonedList(list_type + row_id));
+            row_id++;
+        });
+    }
+
+    // Load now that we have all properties setup and configured
+    load_rows();
+    hideColumn('relationship_searchResultGrid',0);
+    // TODO: add_sort_functions();
+
+
+}
+
+    //------------------------ LOAD SEARCH ROWS END   -------------
+
+function GetClonedList(id) {
+    var cloned_list = document.getElementById("list_widget_101").cloneNode(true);
+    cloned_list.id = id;
+    cloned_list.setAttribute("style","");
+    return cloned_list;
+}
+
+
+function relationshipHandler(sender, sender_id) {
+    var relationshipAction = sender.getAttribute('data-relationship-action');
+    var selected_person_id = document.getElementById('selected_person_id').value;
+    var row_table = document.getElementById("relationship_searchResultGrid");
+    var row_body_id = row_table.getElementsByTagName("tbody")[0].id;
+    var row_body = document.getElementById(row_body_id);
+    var relationships_row_body = document.getElementById('grid_rows_6');
+    /*
+    There are two table grids that we are working with
+    sender = relationship search result grid
+    relationship grid that lists the relations (not search)
+    grid_rows_6
+    * */
+
+    if (relationshipAction == 'search') {
+        SearchPeople();
+    }
+    if (relationshipAction == 'add') {
+        openRelationshipDialog(sender, sender_id);
+    }
+    if (relationshipAction == "save") {
+        save_relationships(sender, sender_id)
+    }
+    if (relationshipAction == 'delete') {
+        openRelationDeleteDialog(sender, sender_id);
+    }
+
+
+    function SearchPeople() {
+        // here... use the button to determine which search tool bar was used
+        // meaning, main search or relation search... so we can
+        // reuse this function.
+        var json_data = JSON.stringify($("#relation_search_form").serializeArray());
+        var search_grid = document.getElementById("relationship_searchResultGrid");
+        $.ajax({
+            type: 'POST',
+            url: "/relation_search",
+            contentType: "application/json",
+            processData: false,
+            data: json_data,
+            success: function (data) {
+                // alert(data);
+                // TODO: build grid (search result) rows here from response
+                fillSearchGrid(search_grid, data)
+            },
+            error: function (xhr, resp, text) {
+                //console.log(xhr, resp, text);
+                // TODO: build actual error function here to handle errors
+            },
+            dataType: "text"
+        });
+    }
+
+    function openRelationshipDialog(sender, id) {
+        $("#person_relationship_wrapper").dialog('open');
+        $('#person_relationship_wrapper').dialog('option', 'title', 'Add Relationship Record');
+    }
+
+    function openRelationDeleteDialog(sender, id) {
+        document.getElementById("relationship-delete-message").style.display = "";
+        var sender_parent_cell = sender.parentElement;
+        var row = sender_parent_cell.parentElement;
+        var row_container = row.parentElement;
+        // var row_index = row.rowIndex;
+        var fn = row.cells[1].innerHTML;
+        var ln = row.cells[2].innerHTML;
+        var rtype = row.cells[3].innerHTML;
+        var pending_deleted_relationship = 'Delete relationship? Are you sure? ' + fn + ' ' + ln + ' Relationship: ' + rtype;
+        document.getElementById('relationship-delete-message').innerHTML = pending_deleted_relationship;
+        $(function () {
+            $("#relationship-dialog-confirm").dialog({
+                resizable: false,
+                height: "auto",
+                width: 400,
+                modal: true,
+                buttons: {
+                    "YES DELETE!": function () {
+                        deleteRelationship(sender, id, row_container, row);
+                        $(this).dialog("close");
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        });
+
+    }
+
+    function save_relationships(sender, sender_id) {
+        var data_array = [];
+        //TODO: this for loop needs the cell values from all fields as a json object so that we
+        // can reuse them to add to the relation grid...
+        // meaning, get the rows we captured from the relation search grid
+        // and append to the relation grid (in tab section)
+        for (var i = 0; i < row_body.rows.length; i++) {
+            var related_person_id = row_body.rows[i].getAttribute("data-key");
+            var cells = row_body.rows[i].cells;
+            var selected_type = cells[7].firstChild;
+            var type_value = selected_type.options[selected_type.selectedIndex].text; //selected_type.value;
+            var type_value_index = selected_type.value;
+            var first_name = cells[1].innerHTML;
+            var last_name = cells[2].innerHTML;
+            var middle_ini = cells[3].innerHTML;
+            //var nick_name = cells[4].innerHTML
+
+            //A user cannot be related to themselves due to circular reference relationships
+            if (type_value_index != "0" && selected_person_id != related_person_id) {
+                var record = {
+                    selectedPid: selected_person_id,
+                    relatedPid: related_person_id,
+                    relatedType: type_value,
+                    first_name: first_name,
+                    last_name: last_name,
+                    middle_ini: middle_ini
+                };
+                data_array.push(record);
+            }
+        }
+        var str = JSON.stringify(data_array);
+
+        function postAction() {
+            $.ajax({
+                type: 'POST',
+                url: "/relation_create",
+                contentType: "application/json",
+                processData: false,
+                data: str,
+                success: function (data) {
+                    // alert(data);
+                    //TODO: Add rows to tab grid for relationship just like we did for
+                    // the other grids in the tabs section
+                    addRows(data);
+                },
+                error: function (xhr, resp, text) {
+                    //console.log(xhr, resp, text);
+                    // TODO: build actual error function here to handle errors
+                },
+                dataType: "text"
+            });
+        }
+
+        postAction();
+
+        function addRows(data) {
+            // TODO: if the json coming back is okay the object should now have everything we need to create rows
+             var relation_data = JSON.parse(data);
+             relation_data.forEach(function (entry) {
+                 var relation_row = relationships_row_body.insertRow(-1);
+                 var first_name_cell = relation_row.insertCell(0);
+                 var last_name_cell = relation_row.insertCell(1);
+                 var middle_ini_cell = relation_row.insertCell(2);
+                 var type_description_cell = relation_row.insertCell(3);
+                 var delete_cell = relation_row.insertCell(4);
+                 first_name_cell.innerHTML = entry.first_name;
+                 last_name_cell.innerHTML = entry.last_name;
+                 middle_ini_cell.innerHTML = entry.middle_initial;
+                 type_description_cell.innerHTML = entry.relationship_type_description;
+                 var rid = entry.relationship_id;
+                 var delete_link = document.createElement("A");
+                 delete_link.setAttribute('id', 'rid_' + rid); // the rid for row
+                 delete_link.setAttribute('href', "http://localhost:delete?rid='x'".replace("x", rid)); // the rid for row
+                 delete_link.setAttribute('onclick', "relationshipHandler(this,'x');".replace("x", rid)); //the rid for row
+                 delete_link.setAttribute("data-relationship-action", "delete");
+                 delete_link.innerHTML = "delete";
+                 delete_cell.appendChild(delete_link);
+             });
+            // hideColumn('phoneGrid', 1);  which, if any do we hide here?
+
+            $("#person_relationship_wrapper").dialog('close');
+
+        }
+
+    }
+
+    function deleteRelationship(sender, relation_id, row_container, row) {
+        var relation = new Object();
+        relation.id = relation_id;
+        var str = JSON.stringify(relation);
+
+        function remove() {
+            $.ajax({
+                type: 'POST',
+                url: "/relation_delete",
+                contentType: "application/json",
+                processData: false,
+                data: str,
+                success: function (data) {
+                    // alert(data);;
+                    row_container.removeChild(row);
+
+                },
+                error: function (xhr, resp, text) {
+                    //console.log(xhr, resp, text);
+                    // TODO: build actual error function here to handle errors
+                },
+                dataType: "text"
+            });
+        }
+
+        remove();
+    }
+
+}
+    // ------ PHONE HANDLER --------------------
+
+function phoneHandler(sender, sender_id) {
+
+    var phoneAction = sender.getAttribute('data-phone-action');
+    if (sender.id !='action_button_phone') {
+        if (phoneAction == "add" || phoneAction == "edit" || phoneAction == "delete") {
+            openPhoneDialog(sender, phoneAction);
+            return;
+        }
+    }
+
+    var phoneType  = document.getElementById('phone_type')
+    var phone_type_description = phoneType.options[ phoneType.selectedIndex ].text;
+    var phone_type_value = phoneType.value;
+    var row_table = document.getElementById("phoneGrid");
+    var row_body_id = row_table.getElementsByTagName("tbody")[0].id;
+    var row_body = document.getElementById(row_body_id);
+
+    var selected_person_id = document.getElementById('selected_person_id').value;
+    var phone =  {
+        phone_area_code:document.getElementById("phone_area_code").value,
+        phone_exchange:document.getElementById("phone_exchange").value,
+        phone_trunk:document.getElementById("phone_trunk").value,
+        phone_pid:document.getElementById("phone_pid").value,
+        phone_cid:document.getElementById("phone_cid").value,
+        phone_sequence_number:document.getElementById("phone_sequence_number").value,
+        phone_type:phone_type_value,
+        phone_type_description:phone_type_description
+    };
+
+    var str = JSON.stringify(phone);
+
+    function openPhoneDialog(sender, action) {
+        clearPhoneDialog();
+        var phone_pid = document.getElementById("selected_person_id").value;
+        if(!phone_pid || phone_pid == 'None') {
+            alert("No Records Selected");
+            return;
+        }
+        document.getElementById("phone_pid").value = phone_pid;
+
+        var action_button = document.getElementById('action_button_phone');
+        //action_button.setAttribute('onclick', 'alert("Action Not Set")');
+
+        switch (action) {
+            case "edit":
+                action_button.setAttribute('data-phone-action', 'edit');
+                action_button.value = "Update Record";
+                $('#contact_phone_wrapper').dialog('option', 'title', 'Edit Phone Record');
+                break;
+            case "delete":
+                action_button.setAttribute('data-phone-action', 'delete');
+                action_button.value = "Delete Record";
+                $('#contact_phone_wrapper').dialog('option', 'title', 'Delete Phone Record');
+                break;
+            case "add":
+                action_button.setAttribute('data-phone-action', 'add');
+                action_button.value = "Create Record";
+                $('#contact_phone_wrapper').dialog('option', 'title', 'Add New Phone Record');
+                break;
+        }
+
+        $("#contact_phone_wrapper").dialog('open');
+        if (action != "add") {
+            var rowCells = sender.parentElement.parentNode.cells;
+            for (var i = 0; i < rowCells.length; i++) {
+                switch (i) {
+                    case 1:
+                        document.getElementById("phone_cid").value = rowCells[i].textContent;
+                        break;
+                    case 2:
+                        document.getElementById("phone_type").value = rowCells[i].textContent;
+                        break;
+                    case 3:
+                        document.getElementById("phone_sequence_number").value = rowCells[i].textContent;
+                        break;
+                    case 4:
+                        document.getElementById("phone_area_code").value = rowCells[i].textContent;
+                        break;
+                    case 5:
+                        document.getElementById("phone_exchange").value = rowCells[i].textContent;
+                        break;
+                    case 6:
+                        document.getElementById("phone_trunk").value = rowCells[i].textContent;
+                        break;
+                }
+            }
+        }
+    }
+
+    function addRow(data) {
+        var phone_data = JSON.parse(data);
+        var row = row_body.insertRow(-1);
+        var edit_cell = row.insertCell(0);
+        var cid_cell = row.insertCell(1);
+        var type_id_cell = row.insertCell(2);
+        var sequence_cell = row.insertCell(3);
+        var area_cell = row.insertCell(4);
+        var exchange_cell = row.insertCell(5);
+        var trunk_cell = row.insertCell(6);
+        var phone_number_cell = row.insertCell(7);
+        var type_description_cell = row.insertCell(8);
+        var delete_cell = row.insertCell(9);
+
+        var edit_link = document.createElement("A");
+        edit_link.setAttribute('id', 'pe_' + selected_person_id);
+        edit_link.setAttribute('href', "http://localhost:edit?pid='x'".replace("x", selected_person_id));
+        edit_link.setAttribute('onclick', "phoneHandler(this,'x');".replace("x", selected_person_id));
+        edit_link.setAttribute("data-phone-action", "edit");
+        edit_link.innerHTML = "edit";
+        edit_cell.appendChild(edit_link);
+
+        cid_cell.innerHTML = phone_data.contact_id;
+        type_id_cell.innerHTML = phone_data.type_code;
+        sequence_cell.innerHTML = phone_data.sequence_number;
+        area_cell.innerHTML = phone_data.area_code;
+        exchange_cell.innerHTML = phone_data.exchange;
+        trunk_cell.innerHTML = phone_data.trunk;
+        phone_number_cell.innerHTML = phone_data.area_code + '-' + phone_data.exchange + '-' + phone_data.trunk;
+        type_description_cell.innerHTML = phone_data.type_description;
+
+        var delete_link = document.createElement("A");
+        delete_link.setAttribute('id', 'pe_' + selected_person_id);
+        delete_link.setAttribute('href', "http://localhost:delete?pid='x'".replace("x", selected_person_id));
+        delete_link.setAttribute('onclick', "phoneHandler(this,'x');".replace("x", selected_person_id));
+        delete_link.setAttribute("data-phone-action", "delete");
+        delete_link.innerHTML = "delete";
+        delete_cell.appendChild(delete_link);
+
+        hideColumn('phoneGrid', 1);
+        hideColumn('phoneGrid', 2);
+        hideColumn('phoneGrid', 3);
+        hideColumn('phoneGrid', 4);
+        hideColumn('phoneGrid', 5);
+        hideColumn('phoneGrid', 6);
+
+        $("#contact_phone_wrapper").dialog('close');
+
+    }
+
+    function deleteRow(data) {
+        var phone_data = JSON.parse(data);
+        var record_to_find = phone_data.contact_id;
+        for (var i = 0; i < row_body.rows.length; i++) {
+            var cells = row_body.rows[i].cells;
+            if (cells[1].innerHTML == record_to_find) {
+                row_body.deleteRow(i);
+                $("#contact_phone_wrapper").dialog('close');
+            }
+        }
+    }
+
+    function updateRow(data) {
+        var phone_data = JSON.parse(data);
+        var record_to_find = phone_data.contact_id;
+        for (var i = 0; i < row_body.rows.length; i++) {
+            var cells = row_body.rows[i].cells;
+            if (cells[1].innerHTML == record_to_find) {
+                // alert(record_to_find);
+                //Cells 0,1,9 are all action fields so leave them alone
+                cells[2].innerHTML = phone_data.type_code
+                cells[3].innerHTML = phone_data.sequence_number
+                cells[4].innerHTML = phone_data.area_code
+                cells[5].innerHTML = phone_data.exchange
+                cells[6].innerHTML = phone_data.trunk
+                cells[7].innerHTML = phone_data.area_code + '-' + phone_data.exchange + '-' + phone_data.trunk;
+                cells[8].innerHTML = phone_data.type_description;
+            }
+        }
+        $("#contact_phone_wrapper").dialog('close');
+    }
+
+    function postAction(action, str) {
+        var postUrl = "";
+        switch (action) {
+            case "add":
+                postUrl = '/phone_create';
+                break;
+            case "edit":
+                postUrl = '/phone_update';
+                break;
+            case "delete":
+                postUrl = '/phone_delete';
+                break;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: postUrl,
+            contentType: "application/json",
+            processData: false,
+            data: str,
+            success: function (data) {
+                // alert(data);
+                //fillSearchGrid(search_grid, data)
+                if (action == "add") {
+                    addRow(data);
+                }
+                if (action == "delete") {
+                    // ui delete function goes here
+                    deleteRow(data);
+                }
+                if (action == "edit") {
+                    // ui update function goes here
+                    updateRow(data);
+                }
+            },
+            error: function (xhr, resp, text) {
+                //console.log(xhr, resp, text);
+                // TODO: build actual error function here to handle errors
+                alert(xhr);
+                alert(resp);
+                alert(text);
+            },
+            dataType: "text"
+        });
+    }
+
+
+    if (sender.id =='action_button_phone' && sender.id != "") {
+        postAction(phoneAction, str);
+    }
+
+}
+    // ------ END PHONE HANDLER ----------------
+
+
+    // ----- EMAIL HANDLER ---------------------
+
+function emailHandler(sender, sender_id) {
+
+    var emailAction = sender.getAttribute('data-email-action');
+    if (sender.id !='action_button_email') {
+        if (emailAction == "add" || emailAction == "edit" || emailAction == "delete") {
+            openEmailDialog(sender, emailAction);
+            return;
+        }
+    }
+
+    var emailType  = document.getElementById('email_type');
+    var email_type_description = emailType.options[ emailType.selectedIndex ].text;
+    var email_type_value = emailType.value;
+    var row_table = document.getElementById("emailGrid");
+    var row_body_id = row_table.getElementsByTagName("tbody")[0].id;
+    var row_body = document.getElementById(row_body_id);
+
+    var selected_person_id = document.getElementById('selected_person_id').value;
+    var email =  {
+        email_type_id:email_type_value,
+        email_address:document.getElementById("email_address").value,
+        email_sequence_number:document.getElementById("email_sequence_number").value,
+        email_pid:document.getElementById("email_pid").value,
+        email_cid:document.getElementById("email_cid").value,
+        email_type_description:email_type_description
+    };
+
+    var str = JSON.stringify(email);
+
+    function openEmailDialog(sender, action) {
+        clearEmailDialog();
+        var email_pid = document.getElementById("selected_person_id").value;
+            if(!email_pid || email_pid == 'None') {
+                alert("No Records Selected");
+                return;
+            }
+        document.getElementById("email_pid").value = email_pid;
+        var action = sender.getAttribute("data-email-action");
+        var action_button = document.getElementById('action_button_email');
+
+        switch (action) {
+            case   "edit"    :
+                action_button.setAttribute('data-email-action', 'edit');
+                action_button.value = "Update Record";
+                $('#contact_email_wrapper').dialog('option', 'title', 'Edit Email Record');
+                break;
+            case    "delete"    :
+                action_button.setAttribute('data-email-action', 'delete');
+                action_button.value = "Delete Record";
+                $('#contact_email_wrapper').dialog('option', 'title', 'Delete Email Record');
+                break;
+            case    "add"    :
+                action_button.setAttribute('data-email-action', 'add');
+                action_button.value = "Create Record";
+                $('#contact_email_wrapper').dialog('option', 'title', 'Add New Email Record');
+                break;
+        }
+
+        $("#contact_email_wrapper").dialog('open');
+        if (action != "add") {
+            var rowCells = sender.parentElement.parentNode.cells;
+            for (var i = 0; i < rowCells.length; i++) {
+                switch (i) {
+                    case 1:
+                        document.getElementById("email_cid").value = rowCells[i].textContent;
+                        break;
+                    case 2:
+                        document.getElementById("email_address").value = rowCells[i].textContent;
+                        break;
+                    case 3:
+                        document.getElementById("email_sequence_number").value = rowCells[i].textContent;
+                        break;
+                    case 4:
+                        document.getElementById("email_type").value = rowCells[i];
+                        // TODO get and set the selected item for drop down list
+                        break;
+                }
+            }
+        }
+    }
+
+    function addRow(data) {
+        var email_data = JSON.parse(data);
+        var row = row_body.insertRow(-1);
+
+        var edit_cell = row.insertCell(0);
+        var cid_cell = row.insertCell(1);
+        var email_address_cell = row.insertCell(2);
+        var sequence_cell = row.insertCell(3);
+        var type_id_cell = row.insertCell(4);
+        var type_description_cell = row.insertCell(5);
+        var delete_cell = row.insertCell(6);
+
+        var edit_link = document.createElement("A");
+        edit_link.setAttribute('id', 'ee_' + selected_person_id);
+        edit_link.setAttribute('href', "http://localhost:edit?pid='x'".replace("x", selected_person_id));
+        edit_link.setAttribute('onclick', "emailHandler(this,'x');".replace("x", selected_person_id));
+        edit_link.setAttribute("data-email-action", "edit");
+        edit_link.innerHTML = "edit";
+        edit_cell.appendChild(edit_link);
+
+        cid_cell.innerHTML = email_data.contact_id;
+        email_address_cell.innerHTML = email_data.email_address;
+        sequence_cell.innerHTML = email_data.sequence_number;
+        type_id_cell.innerHTML = email_data.type_code;
+        type_description_cell.innerHTML = email_data.type_description;
+
+        var delete_link = document.createElement("A");
+        delete_link.setAttribute('id', 'ed_' + selected_person_id);
+        delete_link.setAttribute('href', "http://localhost:delete?pid='x'".replace("x", selected_person_id));
+        delete_link.setAttribute('onclick', "emailHandler(this,'x');".replace("x", selected_person_id));
+        delete_link.setAttribute("data-email-action", "delete");
+        delete_link.innerHTML = "delete";
+        delete_cell.appendChild(delete_link);
+
+        hideColumn('emailGrid',1);
+        hideColumn('emailGrid',3);
+        hideColumn('emailGrid',4);
+
+        $("#contact_email_wrapper").dialog('close');
+
+    }
+
+    function deleteRow(data) {
+        var email_data = JSON.parse(data);
+        var record_to_find = email_data.contact_id;
+        for (var i = 0; i < row_body.rows.length; i++) {
+            var cells = row_body.rows[i].cells;
+            if (cells[1].innerHTML == record_to_find) {
+                row_body.deleteRow(i);
+                $("#contact_email_wrapper").dialog('close');
+            }
+        }
+    }
+
+    function updateRow(data) {
+        var email_data = JSON.parse(data);
+        var record_to_find = email_data.contact_id;
+        for (var i = 0; i < row_body.rows.length; i++) {
+            var cells = row_body.rows[i].cells;
+            if (cells[1].innerHTML == record_to_find) {
+                cells[2].innerHTML = email_data.email_address;
+                cells[3].innerHTML = email_data.sequence_number;
+                cells[4].innerHTML = email_data.email_type_id;
+                cells[5].innerHTML = email_data.type_description;
+            }
+        }
+        $("#contact_email_wrapper").dialog('close');
+    }
+
+    function postAction(action, str) {
+        var postUrl = "";
+        switch (action) {
+            case "add":
+                postUrl = '/email_create';
+                break;
+            case "edit":
+                postUrl = '/email_update';
+                break;
+            case "delete":
+                postUrl = '/email_delete';
+                break;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: postUrl,
+            contentType: "application/json",
+            processData: false,
+            data: str,
+            success: function (data) {
+                // alert(data);
+                //fillSearchGrid(search_grid, data)
+                if (action == "add") {
+                    addRow(data);
+                }
+                if (action == "delete") {
+                    // ui delete function goes here
+                    deleteRow(data);
+                }
+                if (action == "edit") {
+                    // ui update function goes here
+                    updateRow(data);
+                }
+            },
+            error: function (xhr, resp, text) {
+                //console.log(xhr, resp, text);
+                // TODO: build actual error function here to handle errors
+                alert(xhr);
+                alert(resp);
+                alert(text);
+            },
+            dataType: "text"
+        });
+    }
+
+    if (sender.id =='action_button_email' && sender.id != "") {
+        postAction(emailAction, str);
+    }
+
+}
+
+    // ----- EMAIL HANDLER END -----------------
+
+    //------ ADDRESS HANDLER -------------------
+function addressHandler(sender, sender_id) {
+
+    var addressAction = sender.getAttribute('data-address-action');
+    if (sender.id != 'action_button_address') {
+        if (addressAction == "add" || addressAction == "edit" || addressAction == "delete") {
+            openAddressDialog(sender, addressAction);
+            return;
+        }
+    }
+
+    var addressType = document.getElementById('address_type');
+    var address_type_description = addressType.options[addressType.selectedIndex].text;
+    var address_type_value = addressType.value;
+    var row_table = document.getElementById("addressGrid");
+    var row_body_id = row_table.getElementsByTagName("tbody")[0].id;
+    var row_body = document.getElementById(row_body_id);
+    var selected_person_id = document.getElementById('selected_person_id').value;
+    var address = {
+        address_line_1: document.getElementById("address_line_1").value,
+        address_line_2: document.getElementById("address_line_2").value,
+        po_box: document.getElementById("po_box").value,
+        city: document.getElementById("city").value,
+        state: document.getElementById("state").value,
+        zip_code: document.getElementById("zip_code").value,
+        zip_4: document.getElementById("zip_4").value,
+        postal_code: document.getElementById("postal_code").value,
+        address_status: document.getElementById("address_status").value,
+        address_sequence_number: document.getElementById("address_sequence_number").value,
+        address_pid: document.getElementById("address_pid").value,
+        address_aid: document.getElementById("address_aid").value,
+        address_type: address_type_value,
+        address_type_description: address_type_description
+    };
+
+    var str = JSON.stringify(address);
+
+    function openAddressDialog(sender, action) {
+        clearAddressDialog();
+        var address_pid = document.getElementById("selected_person_id").value;
+        if (!address_pid || address_pid == 'None') {
+            alert("No Records Selected");
+            return;
+        }
+        document.getElementById("address_pid").value = address_pid;
+        var action_button = document.getElementById('action_button_address');
+        switch (action) {
+            case "edit":
+                action_button.setAttribute('data-address-action', 'edit');
+                action_button.value = "Update Record";
+                $('#address_wrapper').dialog('option', 'title', 'Edit Address Record');
+                break;
+            case "delete":
+                action_button.setAttribute('data-address-action', 'delete');
+                action_button.value = "Delete Record";
+                $('#address_wrapper').dialog('option', 'title', 'Delete Address Record');
+                break;
+            case "add":
+                action_button.setAttribute('data-address-action', 'add');
+                action_button.value = "Create Record";
+                $('#address_wrapper').dialog('option', 'title', 'Add New Address Record');
+                break;
+        }
+
+        $("#address_wrapper").dialog('open');
+
+        if (action != "add") {
+            var rowCells = sender.parentElement.parentNode.cells;
+            for (var i = 0; i < rowCells.length; i++) {
+                switch (i) {
+                    case 1:
+                        document.getElementById("address_aid").value = rowCells[i].textContent;
+                        break;
+                    case 2:
+                        document.getElementById("address_pid").value = rowCells[i].textContent;
+                        break;
+                    case 3:
+                        document.getElementById("address_line_1").value = rowCells[i].textContent;
+                        break;
+                    case 4:
+                        document.getElementById("address_line_2").value = rowCells[i].textContent;
+                        break;
+                    case 5:
+                        document.getElementById("po_box").value = rowCells[i].textContent;
+                        break;
+                    case 6:
+                        document.getElementById("city").value = rowCells[i].textContent;
+                        break;
+                    case 7:
+                        document.getElementById("state").value = rowCells[i].textContent;
+                        break;
+                    case 8:
+                        document.getElementById("zip_code").value = rowCells[i].textContent;
+                        break;
+                    case 9:
+                        document.getElementById("zip_4").value = rowCells[i].textContent;
+                        break;
+                    case 10:
+                        document.getElementById("postal_code").value = rowCells[i].textContent;
+                        break;
+                    case 11:
+                        document.getElementById("address_status").value = rowCells[i].textContent;
+                        break;
+                    case 12:
+                        document.getElementById("address_sequence_number").value = rowCells[i].textContent;
+                        break;
+                    case 13:
+                        document.getElementById("address_type").value = rowCells[i].textContent;
+                        break;
+
+                }
+            }
+        }
+    }
+
+    function addRow(data) {
+        var address_data = JSON.parse(data);
+        var row = row_body.insertRow(-1);
+        var edit_cell = row.insertCell(0);
+        var aid_cell = row.insertCell(1);
+        var pid_cell = row.insertCell(2);
+        var line1_cell = row.insertCell(3);
+        var line2_cell = row.insertCell(4);
+        var pobox_cell = row.insertCell(5);
+        var city_cell = row.insertCell(6);
+        var state_cell = row.insertCell(7);
+        var zip_cell = row.insertCell(8);
+        var zip4_cell = row.insertCell(9);
+        var postalcode_cell = row.insertCell(10);
+        var status_cell = row.insertCell(11);
+        var sequence_cell = row.insertCell(12);
+        var type_id_cell = row.insertCell(13);
+        var type_description_cell = row.insertCell(14);
+        var delete_cell = row.insertCell(15);
+        var edit_link = document.createElement("A");
+
+        edit_link.setAttribute('id', 'ae_' + selected_person_id);
+        edit_link.setAttribute('href', "http://localhost:edit?pid='x'".replace("x", selected_person_id));
+        edit_link.setAttribute('onclick', "addressHandler(this,'x');".replace("x", selected_person_id));
+        edit_link.setAttribute("data-address-action", "edit");
+        edit_link.innerHTML = "edit";
+        edit_cell.appendChild(edit_link);
+
+        aid_cell.innerHTML = address_data.address_id;
+        pid_cell.innerHTML = address_data.person_id;
+        line1_cell.innerHTML = address_data.address_line_1;
+        line2_cell.innerHTML = address_data.address_line_2;
+        pobox_cell.innerHTML = address_data.po_box;
+        city_cell.innerHTML = address_data.city;
+        state_cell.innerHTML = address_data.state;
+        zip_cell.innerHTML = address_data.zip_code;
+        zip4_cell.innerHTML = address_data.zip4;
+        postalcode_cell.innerHTML = address_data.postal_code;
+        status_cell.innerHTML = address_data.status;
+        sequence_cell.innerHTML = address_data.sequence_number;
+        type_id_cell.innerHTML = address_data.type_code; // self.type_id = None
+        type_description_cell.innerHTML = address_data.type_description;
+
+        var delete_link = document.createElement("A");
+        delete_link.setAttribute('id', 'ad_' + selected_person_id);
+        delete_link.setAttribute('href', "http://localhost:delete?pid='x'".replace("x", selected_person_id));
+        delete_link.setAttribute('onclick', "addressHandler(this,'x');".replace("x", selected_person_id));
+        delete_link.setAttribute("data-address-action", "delete");
+        delete_link.innerHTML = "delete";
+        delete_cell.appendChild(delete_link);
+
+        hideColumn('addressGrid', 1);
+        hideColumn('addressGrid', 2);
+        hideColumn('addressGrid', 5);
+        hideColumn('addressGrid', 9);
+        hideColumn('addressGrid', 10);
+        hideColumn('addressGrid', 13);
+        $("#address_wrapper").dialog('close');
+    }
+
+    function deleteRow(data) {
+        var address_data = JSON.parse(data);
+        var record_to_find = address_data.address_id;
+        for (var i = 0; i < row_body.rows.length; i++) {
+            var cells = row_body.rows[i].cells;
+            if (cells[1].innerHTML == record_to_find) {
+                row_body.deleteRow(i);
+                $("#address_wrapper").dialog('close');
+            }
+        }
+    }
+
+    function updateRow(data) {
+        var address_data = JSON.parse(data);
+        var record_to_find = address_data.address_id;
+        for (var i = 0; i < row_body.rows.length; i++) {
+            var cells = row_body.rows[i].cells;
+            if (cells[1].innerHTML == record_to_find) {
+                // alert(record_to_find);
+                // ---------------------------------------------------------------------------------
+                // edit_cell = cell[0].innerHTML = ;
+                // cells[1].innerHTML = address_data.address_id;
+                // cells[2].innerHTML = address_data.person_id;
+                cells[3].innerHTML = address_data.address_line_1;
+                cells[4].innerHTML = address_data.address_line_2;
+                cells[5].innerHTML = address_data.po_box;
+                cells[6].innerHTML = address_data.city;
+                cells[7].innerHTML = address_data.state;
+                cells[8].innerHTML = address_data.zip_code;
+                cells[9].innerHTML = address_data.zip4;
+                cells[10].innerHTML = address_data.postal_code;
+                cells[11].innerHTML = address_data.status;
+                cells[12].innerHTML = address_data.sequence_number;
+                cells[13].innerHTML = address_data.type_code;
+                cells[14].innerHTML = address_data.type_description;
+                //delete_cell = cells[15].innerHTML =;
+            }
+        }
+        $("#address_wrapper").dialog('close');
+    }
+
+    function postAction(action, str) {
+        var postUrl = "";
+        switch (action) {
+            case "add":
+                postUrl = '/address_create';
+                break;
+            case "edit":
+                postUrl = '/address_update';
+                break;
+            case "delete":
+                postUrl = '/address_delete';
+                break;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: postUrl,
+            contentType: "application/json",
+            processData: false,
+            data: str,
+            success: function (data) {
+                // alert(data);
+                //fillSearchGrid(search_grid, data)
+                if (action == "add") {
+                    addRow(data);
+                }
+                if (action == "delete") {
+                    // ui delete function goes here
+                    deleteRow(data);
+                }
+                if (action == "edit") {
+                    // ui update function goes here
+                    updateRow(data);
+                }
+            },
+            error: function (xhr, resp, text) {
+                //console.log(xhr, resp, text);
+                // TODO: build actual error function here to handle errors
+                alert(xhr);
+                alert(resp);
+                alert(text);
+            },
+            dataType: "text"
+        });
+    }
+    if (sender.id == 'action_button_address' && sender.id != "") {
+        postAction(addressAction, str);
+    }
+
+}
+    //------ ADDRESS HANDLER END ---------------
+
+    //------ IDENTIFICATION HANDLER ------------
+
+function identificationHandler(sender, sender_id) {
+
+    var identificationAction = sender.getAttribute('data-identification-action');
+    if (sender.id != 'action_button_identification') {
+        if (identificationAction == "add" || identificationAction == "edit" || identificationAction == "delete") {
+            openIdentificationDialog(sender, identificationAction);
+            return;
+        }
+    }
+    var row_table = document.getElementById("identificationGrid");
+    var row_body_id = row_table.getElementsByTagName("tbody")[0].id;
+    var row_body = document.getElementById(row_body_id);
+    var selected_person_id = document.getElementById('selected_person_id').value;
+    var identification = {
+        identification_number: document.getElementById('identification_number').value,
+        issuing_authority: document.getElementById('issuing_authority').value,
+        issuing_entity: document.getElementById('issuing_entity').value,
+        record_location: document.getElementById('record_location').value,
+        identification_type: document.getElementById('identification_type').value,
+        identification_pid: document.getElementById('identification_pid').value,
+        identification_id: document.getElementById('identification_id').value,
+        identification_type_description: identification_type.options[identification_type.selectedIndex].text
+    };
+
+    var str = JSON.stringify(identification);
+
+    function openIdentificationDialog(sender, action) {
+        clearIdDialog();
+        var identification_pid = document.getElementById("selected_person_id").value;
+        if (!identification_pid || identification_pid == 'None') {
+            alert("No Records Selected");
+            return;
+        }
+        document.getElementById("identification_pid").value = identification_pid;
+        var action_button = document.getElementById('action_button_identification');
+        switch (action) {
+            case "edit":
+                action_button.setAttribute('data-identification-action', 'edit');
+                action_button.value = "Update Record";
+                $('#id_wrapper').dialog('option', 'title', 'Edit identification Record');
+                break;
+            case "delete":
+                action_button.setAttribute('data-identification-action', 'delete');
+                action_button.value = "Delete Record";
+                $('#id_wrapper').dialog('option', 'title', 'Delete identification Record');
+                break;
+            case "add":
+                action_button.setAttribute('data-identification-action', 'add');
+                action_button.value = "Create Record";
+                $('#id_wrapper').dialog('option', 'title', 'Add New identification Record');
+                break;
+        }
+        $("#id_wrapper").dialog('open');
+        if (action != "add") {
+            var rowCells = sender.parentElement.parentNode.cells;
+            for (var i = 0; i < rowCells.length; i++) {
+                switch (i) {
+                    case 1:
+                        //document.getElementById("").value = rowCells[i].textContent;
+
+                        break;
+                    case 2:
+                        document.getElementById("identification_number").value = rowCells[i].textContent;
+
+                        break;
+                    case 3:
+                        document.getElementById("identification_type").value = rowCells[i].textContent;
+                        break;
+//                    case 4:
+//                        document.getElementById("identification_type").value = rowCells[i].textContent;
+//                        break;
+                    case 5:
+                        document.getElementById("issuing_authority").value = rowCells[i].textContent;
+                        break;
+                    case 6:
+                        document.getElementById("issuing_entity").value = rowCells[i].textContent;
+                        break;
+                    case 7:
+                        document.getElementById("record_location").value = rowCells[i].textContent;
+                        break;
+                    case 8:
+                        document.getElementById("identification_id").value = rowCells[i].textContent;
+                        break;
+                    case 9:
+                        //document.getElementById("").value = rowCells[i].textContent;
+                        break;
+                }
+            }
+        }
+    }
+
+    function addRow(data) {
+        var identification_data = JSON.parse(data);
+        var row = row_body.insertRow(-1);
+
+        var edit_cell = row.insertCell(0);
+        var pid_cell = row.insertCell(1);
+        var id_number_cell = row.insertCell(2);
+        var id_type_cell = row.insertCell(3);
+        var id_type_description_cell = row.insertCell(4);
+        var issuing_authority_cell = row.insertCell(5);
+        var issuing_entity_cell = row.insertCell(6);
+        var record_location_cell = row.insertCell(7);
+        var identification_id_cell = row.insertCell(8);
+        var delete_cell = row.insertCell(9);
+
+
+        var edit_link = document.createElement("A");
+        edit_link.setAttribute('id', 'ie_' + selected_person_id);
+        edit_link.setAttribute('href', "http://localhost:edit?pid='x'".replace("x", selected_person_id));
+        edit_link.setAttribute('onclick', "identificationHandler(this,'x');".replace("x", selected_person_id));
+        edit_link.setAttribute("data-identification-action", "edit");
+        edit_link.innerHTML = "edit";
+        edit_cell.appendChild(edit_link);
+
+        pid_cell.innerHTML = identification_data.person_id;
+        id_number_cell.innerHTML = identification_data.identification_number;
+        issuing_authority_cell.innerHTML = identification_data.issuing_authority;
+        issuing_entity_cell.innerHTML = identification_data.issuing_entity;
+        record_location_cell.innerHTML = identification_data.record_location;
+        identification_id_cell.innerHTML = identification_data.identification_id;
+        id_type_cell.innerHTML = identification_data.type_code_id;
+        id_type_description_cell.innerHTML = identification_data.type_description;
+
+        var delete_link = document.createElement("A");
+        delete_link.setAttribute('id', 'id_' + selected_person_id);
+        delete_link.setAttribute('href', "http://localhost:delete?pid='x'".replace("x", selected_person_id));
+        delete_link.setAttribute('onclick', "identificationHandler(this,'x');".replace("x", selected_person_id));
+        delete_link.setAttribute("data-identification-action", "delete");
+        delete_link.innerHTML = "delete";
+        delete_cell.appendChild(delete_link);
+
+        hideColumn('identificationGrid',1);
+        hideColumn('identificationGrid',3);
+        hideColumn('identificationGrid',8);
+
+        $("#id_wrapper").dialog('close');
+    }
+
+    function deleteRow(data) {
+        var identification_data = JSON.parse(data);
+        var record_to_find = identification_data.identification_id;
+        for (var i = 0; i < row_body.rows.length; i++) {
+            var cells = row_body.rows[i].cells;
+            if (cells[8].innerHTML == record_to_find) {
+                row_body.deleteRow(i);
+                $("#id_wrapper").dialog('close');
+            }
+        }
+    }
+
+    function updateRow(data) {
+        var identification_data = JSON.parse(data);
+        var record_to_find = identification_data.identification_id;
+        for (var i = 0; i < row_body.rows.length; i++) {
+            var cells = row_body.rows[i].cells;
+            if (cells[8].innerHTML == record_to_find) {
+                // cells[0].innerHTML = edit_cell
+                cells[1].innerHTML = identification_data.person_id;
+                cells[2].innerHTML = identification_data.identification_number;
+                cells[3].innerHTML = identification_data.type_code;
+                cells[4].innerHTML = identification_data.type_description;
+                cells[5].innerHTML = identification_data.issuing_authority;
+                cells[6].innerHTML = identification_data.issuing_entity;
+                cells[7].innerHTML = identification_data.record_location;
+                cells[8].innerHTML = identification_data.identification_id;
+                //cells[9].innerHTML =delete_cell
+            }
+        }
+        $("#id_wrapper").dialog('close');
+    }
+
+    function postAction(action, str) {
+        var postUrl = "";
+        switch (action) {
+            case "add":
+                postUrl = '/identification_create';
+                break;
+            case "edit":
+                postUrl = '/identification_update';
+                break;
+            case "delete":
+                postUrl = '/identification_delete';
+                break;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: postUrl,
+            contentType: "application/json",
+            processData: false,
+            data: str,
+            success: function (data) {
+                if (action == "add") {
+                    addRow(data);
+                }
+                if (action == "delete") {
+                    // ui delete function goes here
+                    deleteRow(data);
+                }
+                if (action == "edit") {
+                    // ui update function goes here
+                    updateRow(data);
+                }
+            },
+            error: function (xhr, resp, text) {
+                //console.log(xhr, resp, text);
+                // TODO: build actual error function here to handle errors
+                alert(xhr);
+                alert(resp);
+                alert(text);
+            },
+            dataType: "text"
+        });
+    }
+
+    if (sender.id == 'action_button_identification' && sender.id != "") {
+        postAction(identificationAction, str);
+    }
+
+}
+    //------ IDENTIFICATION HANDLER END --------
+
+function commentHandler(sender) {
+    var comment_pid = document.getElementById("selected_person_id").value;
+    var comment_id = sender.getAttribute("data-comment-id");
+    var comment = {
+        comment_pid:comment_pid,
+        comment_id:comment_id,
+        comment:document.getElementById('comment').value,
+    };
+    var str = JSON.stringify(comment);
+    function postAction(str) {
+        var postUrl = '/comment_update';
+        $.ajax({
+            type: 'POST',
+            url: postUrl,
+            contentType: "application/json",
+            processData: false,
+            data: str,
+            success: function (data) {
+                // updateComment(data);
+            },
+            error: function (xhr, resp, text) {
+                //console.log(xhr, resp, text);
+                // TODO: build actual error function here to handle errors
+                alert(xhr);
+                alert(resp);
+                alert(text);
+            },
+            dataType: "text"
+        });
+    }
+    postAction(str);
+}
+
+</script>
+</body>
+</html>

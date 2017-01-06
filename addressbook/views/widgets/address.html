@@ -1,0 +1,45 @@
+
+<style type="text/css">
+    #address_div ul{
+        list-style: none;
+        margin:0;
+        padding:0;
+    }
+    #address_div label{
+        display: inline-block;
+        width: 120px;
+    }
+
+</style>
+<form id="address_form" action="http://127.0.0.1:8080/index" method="post">
+<div id="address_div">
+<ul>
+    <li><label for="address_line_1">Line 1</label><input type="text" id="address_line_1" name="address_line_1"></li>
+    <li><label for="address_line_2">Line 2</label><input type="text" id="address_line_2" name="address_line_2"> </li>
+    <li><label for="po_box">PO Box</label><input type="text" id="po_box" name="po_box"> </li>
+    <li><label for="city">City</label><input type="text" id="city" name="city"></li>
+    <li><label for="state">State</label><input type="text" id="state" name="state" placeholder="2 character"> </li>
+    <li><label for="zip_code">Zip Code</label><input type="text" id="zip_code" name="zip_code" placeholder="five digits"> </li>
+    <li><label for="zip_4">Zip+4</label><input type="text" id="zip_4" name="zip_4" placeholder="four digits"> </li>
+    <li><label for="postal_code">Postal Code</label><input type="text" id="postal_code" name="postal_code" placeholder="non us-zip-code"> </li>
+    <li><label for="address_status">Status</label><input type="text" id="address_status" name="address_status" placeholder="status of address"> </li>
+    <li><label for="address_sequence_number">Sequence</label><input type="text" id="address_sequence_number" name="address_sequence_number" placeholder="number"> </li>
+    <li><label for="address_type">Type</label><select id="address_type" name="address_type">
+            <option value="29">FORWARDING</option>
+            <option value="30">PRIOR</option>
+            <option value="31">CURRENT</option>
+            <option value="32">BAD</option>
+            <option value="33">BILLING</option>
+            <option value="34">MAILING</option>
+            <option value="35">SHIPPING</option>
+        </select>
+    </li>
+    <li>
+        <label for="action_button_address">Action</label>
+        <input type="button" id="action_button_address"  name="action_button_address" value="Address Record Action" data-address-action="" >
+        <input type="hidden" id="address_pid" name="address_pid">
+        <input type="hidden" id="address_aid" name="address_aid">
+    </li>
+</ul>
+</div>
+</form>
