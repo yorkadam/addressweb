@@ -748,8 +748,6 @@ function relationshipHandler(sender, sender_id) {
             processData: false,
             data: json_data,
             success: function (data) {
-                // alert(data);
-                // TODO: build grid (search result) rows here from response
                 fillSearchGrid(search_grid, data)
             },
             error: function (xhr, resp, text) {
@@ -798,10 +796,6 @@ function relationshipHandler(sender, sender_id) {
 
     function save_relationships(sender, sender_id) {
         var data_array = [];
-        //TODO: this for loop needs the cell values from all fields as a json object so that we
-        // can reuse them to add to the relation grid...
-        // meaning, get the rows we captured from the relation search grid
-        // and append to the relation grid (in tab section)
         for (var i = 0; i < row_body.rows.length; i++) {
             var related_person_id = row_body.rows[i].getAttribute("data-key");
             var cells = row_body.rows[i].cells;
@@ -874,12 +868,8 @@ function relationshipHandler(sender, sender_id) {
                  delete_link.innerHTML = "delete";
                  delete_cell.appendChild(delete_link);
              });
-            // hideColumn('phoneGrid', 1);  which, if any do we hide here?
-
             $("#person_relationship_wrapper").dialog('close');
-
         }
-
     }
 
     function deleteRelationship(sender, relation_id, row_container, row) {
