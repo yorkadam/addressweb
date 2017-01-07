@@ -9,7 +9,7 @@
         </thead>
         <tbody id="grid_rows_{{widget_identifier}}">
             {% for row in rows %}
-                <tr id="{{ row_id }}"><!-- TODO: row_id not working here. Bug: filling with empty string -->
+                <tr id="{{grid_id}}_row_{{loop.index}}">
                     {% for cell_value in row %}
                     <td>{{ cell_value }}</td>
                     {% endfor %}

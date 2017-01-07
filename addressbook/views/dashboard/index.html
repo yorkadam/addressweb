@@ -481,33 +481,35 @@
         }
 
         $("#person_wrapper").dialog('open');
-        var rowCells = sender.parentElement.parentNode.cells;
-        for (var i = 0; i < rowCells.length; i++) {
-            switch (i) {
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    document.getElementById("first_name").value = rowCells[i].textContent;
-                    break;
-                case 4:
-                    document.getElementById("last_name").value = rowCells[i].textContent;
-                    break;
-                case 5:
-                    document.getElementById("middle_initial").value = rowCells[i].textContent;
-                    break;
-                case 6:
-                    document.getElementById("nick_name").value = rowCells[i].textContent;
-                    break;
-                case 7:
-                    document.getElementById("birth_date").value = rowCells[i].textContent;
-                    break;
-                case 8:
-                    document.getElementById("death_date").value = rowCells[i].textContent;
-                    break;
-                case 9:
-                    break;
+        if(action != "add") {
+            var rowCells = sender.parentElement.parentNode.cells;
+            for (var i = 0; i < rowCells.length; i++) {
+                switch (i) {
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        document.getElementById("first_name").value = rowCells[i].textContent;
+                        break;
+                    case 4:
+                        document.getElementById("last_name").value = rowCells[i].textContent;
+                        break;
+                    case 5:
+                        document.getElementById("middle_initial").value = rowCells[i].textContent;
+                        break;
+                    case 6:
+                        document.getElementById("nick_name").value = rowCells[i].textContent;
+                        break;
+                    case 7:
+                        document.getElementById("birth_date").value = rowCells[i].textContent;
+                        break;
+                    case 8:
+                        document.getElementById("death_date").value = rowCells[i].textContent;
+                        break;
+                    case 9:
+                        break;
+                }
             }
         }
     }
@@ -660,14 +662,10 @@ function fillSearchGrid(sender, data)  {
         data_array.forEach(function (entry) {
             //Insert New Row
             var row = row_body.insertRow(row_id);
-            var data_row_id = document.createAttribute("id");
-            data_row_id.value = "related_X".replace("X", entry[0]);
-            row.setAttributeNode(data_row_id);
-
-            var data_row_key = document.createAttribute("data-key");
-            data_row_key.value = "X".replace("X", entry[0]);
-            row.setAttributeNode(data_row_key);
-
+            var id_value = "related_X".replace("X", entry[0]);
+            row.setAttribute("id", id_value);
+            var dataKeyValue = "X".replace("X", entry[0]);
+            row.setAttribute("data-key", dataKeyValue);
             var person_id_cell = row.insertCell(0);
             var first_name_cell = row.insertCell(1);
             var last_name_cell = row.insertCell(2);
