@@ -1,5 +1,5 @@
 # addressweb - HTML & Python Based Address Book
-
+Please note: I am currently a Software Engineer; where at work we use the Microsoft stack for everything. This project is one of many non-Microsoft projects I'm working on to solidify my skills on other technology stacks.  Therefore, this is a learning project for me and I would be happy to receive any feedback positive or negative. 
 ## Description
 A simple stand-alone address book for keeping track of people’s addresses, contact information, identification, and relationships. 
 This address book software is written in Python, javascript, html, SQLite, JQuery UI,  and uses CherryPy.
