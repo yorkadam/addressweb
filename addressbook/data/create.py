@@ -20,11 +20,15 @@ import sqlite3
 
 
 from addressbook import settings
+from addressbook.data.results import Result, build_result_error
 
 """
 Functions to create data records.
 """
 # TODO: add more meaningful results other than True and False for results and exceptions
+
+
+
 
 def create_address(address):
     """Create an address.
@@ -104,24 +108,35 @@ def create_person(person):
     :param person: Class instance of Person() as parameter.
     :return: Boolean indicating success of database action.
     """
+    result = Result()
     try:
-        conn = sqlite3.connect(settings.database_name)
-        c = conn.cursor()
-        c.execute("PRAGMA foreign_keys = ON")
-        c.execute("INSERT INTO person VALUES (?, ?, ?, ?, ?, ?, ?)",
-                  (person.person_id,
-                   person.first_name,
-                   person.last_name,
-                   person.middle_initial,
-                   person.nick_name,
-                   person.date_of_birth,
-                   person.date_of_death
-                   ))
-        conn.commit()
-        conn.close()
-        return True
-    except:
-        return False
+        with sqlite3.connect(settings.database_name) as conn:
+            c = conn.cursor()
+            c.execute("PRAGMA foreign_keys = ON")
+            c.execute("INSERT INTO person VALUES (?, ?, ?, ?, ?, ?, ?)",
+                      (person.person_id,
+                       person.first_name,
+                       person.last_name,
+                       person.middle_initial,
+                       person.nick_name,
+                       person.date_of_birth,
+                       person.date_of_death
+                       ))
+            conn.commit()
+            conn.close()
+            result.message = "Success"
+            result.value = True
+        return result
+    except sqlite3.DataError:
+        return build_result_error("create_person", "DataError")
+    except sqlite3.ProgrammingError:
+        return build_result_error("create_person", "ProgrammingError")
+    except sqlite3.IntegrityError:
+        return build_result_error("create_person", "IntegrityError")
+    except sqlite3.Error:
+        return build_result_error("create_person", "Error")
+    except Exception as Ex:
+        return build_result_error("create_person", "SystemError")
 
 
 def create_identification(identity):
@@ -155,26 +170,32 @@ def create_phone_contact(phone):
     :param phone: Class instance of Phone() as parameter.
     :return: Boolean indicating success of database action.
     """
+    result = Result()
     try:
-        conn = sqlite3.connect(settings.database_name)
-        c = conn.cursor()
-        c.execute("PRAGMA foreign_keys = ON")
-        c.execute("INSERT INTO contact VALUES (?, ?)", (None, phone.person_id))
-        new_row_id = c.lastrowid
-        # phone.contact_id,
-        c.execute("INSERT INTO phone VALUES (?, ?, ?, ?, ?, ?);",
-                  (c.lastrowid,
-                   phone.type_code,
-                   phone.sequence_number,
-                   phone.area_code,
-                   phone.exchange,
-                   phone.trunk
-                   ))
-        conn.commit()
-        conn.close()
-        return True, new_row_id
+        with sqlite3.connect(settings.database_name) as conn:
+            c = conn.cursor()
+            c.execute("PRAGMA foreign_keys = ON")
+            c.execute("INSERT INTO contact VALUES (?, ?)", (None, phone.person_id))
+            new_row_id = c.lastrowid
+            c.execute("INSERT INTO phone VALUES (?, ?, ?, ?, ?, ?);",
+                      (c.lastrowid,
+                       phone.type_code,
+                       phone.sequence_number,
+                       phone.area_code,
+                       phone.exchange,
+                       phone.trunk
+                       ))
+            conn.commit()
+            # conn.close()
+            result.message = "Success"
+            result.value = new_row_id
+            result.success = True
+        return result
     except:
-        return False, 0
+        result.message = "Failure"
+        result.success = False
+        result.error_status = True
+        return result
 
 
 def create_email_contact(email):

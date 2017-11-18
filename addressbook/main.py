@@ -7,7 +7,7 @@ from addressbook.data.read import is_person_identifier_used
 from addressbook.data.create import create_person, create_address, create_phone_contact, create_email_contact,\
     create_identification, create_relation, create_comment
 
-from addressbook.data.read import search_people_2, read_people
+from addressbook.data.read import search_people_2, search_people_1, read_people
 
 from addressbook.data.update import update_person, update_address, update_phone_contact, update_email_contact, \
     update_identification, update_comment
@@ -269,7 +269,8 @@ class Root:
             # TODO: Error handling for exceeding limit
             pass
         else:
-            if create_person(person):
+            result = create_person(person)
+            if result.value:
                 comment = Comment()
                 comment.person_id = person.person_id
                 comment.comment = ""
@@ -380,7 +381,7 @@ class Root:
             people = search_people_2(search_type_option, search_value)
             return people
         if search_predicate == "equals":
-            people = search_people_2(search_type_option, search_value)
+            people = search_people_1(search_type_option, search_value)
             return people
             # self.index(search=people)
 
@@ -497,7 +498,10 @@ class Root:
         phone.type_code = input_json["phone_type"]
         phone.type_description = input_json["phone_type_description"]
         result = self.add_phone(phone)
-        phone.contact_id = result[1]  # input_json["phone_cid"]
+        phone.contact_id = result.value  # result[1]  # input_json["phone_cid"]
+        phone.message = result.message  # adding message attribute is one way to use Python's dynamic nature.
+        phone.error_status = result.error_status
+        phone.success = result.success
         return vars(phone)  # TODO: error handling here
 
     @cherrypy.expose

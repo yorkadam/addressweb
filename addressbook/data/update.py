@@ -19,6 +19,7 @@
 import sqlite3
 
 from addressbook import settings
+from addressbook.data.results import Result
 
 # TODO: add more meaningful results other than True and False for results and exceptions
 
@@ -105,25 +106,52 @@ def update_person(person):
     :param person: Class instance of person.
     :return: Boolean indicating success of database action.
     """
+    result = Result()
     try:
-        conn = sqlite3.connect(settings.database_name)
-        c = conn.cursor()
-        c.execute("PRAGMA foreign_keys = ON")
-        c.execute("UPDATE person SET firstname=?, lastname=?, "
-                  "middleinitial=?, nickname=?, dateofbirth=?, dateofdeath=? WHERE personid=?",
-                  (person.first_name,
-                   person.last_name,
-                   person.middle_initial,
-                   person.nick_name,
-                   person.date_of_birth,
-                   person.date_of_death,
-                   person.person_id
-                   ))
-        conn.commit()
-        conn.close()
-        return True
-    except:
-        return False
+        with sqlite3.connect(settings.database_name) as conn:
+            c = conn.cursor()
+            c.execute("PRAGMA foreign_keys = ON")
+            c.execute("UPDATE person SET firstname=?, lastname=?, "
+                      "middleinitial=?, nickname=?, dateofbirth=?, dateofdeath=? WHERE personid=?",
+                      (person.first_name,
+                       person.last_name,
+                       person.middle_initial,
+                       person.nick_name,
+                       person.date_of_birth,
+                       person.date_of_death,
+                       person.person_id
+                       ))
+            conn.commit()
+            # conn.close()
+            result.success = True
+            result.message = "Success"
+        return result
+    except sqlite3.DataError:
+        result.error_status = True
+        result.message = "SQLite Data Error"
+        result.value = False
+        return result
+    except sqlite3.ProgrammingError:
+        result.error_status = True
+        result.message = "SQLite Programming Error"
+        result.value = False
+        return result
+    except sqlite3.IntegrityError:
+        result.error_status = True
+        result.message = "SQLite Data Integrity Error"
+        result.value = False
+        return result
+    except sqlite3.Error:
+        result.error_status = True
+        result.message = "SQLite Base Error"
+        result.value = False
+        return result
+    except Exception as Ex:
+        result.error_status = True
+        result.message = Ex.__cause__
+        result.value = False
+        return result
+
 
 
 def update_identification(identity):
@@ -203,7 +231,7 @@ def update_email_contact(email):
 def update_relation(relationship):
     """Updates relationship for the specified relationship instance.
     :param relationship: Class instance of Relationship().
-    :return: Boolean indicating sucess of database action.
+    :return: Boolean indicating success of database action.
     """
     conn = sqlite3.connect(settings.database_name)
     c = conn.cursor()

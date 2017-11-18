@@ -215,6 +215,7 @@
                     <div id="contacts_wrapper" class="grid">
                         <div>
                             <h3 class="widget-title">Phone Numbers</h3>
+                            <div style="display:block" id="phone_message"></div>
                             <span id="add_phone" class="widget-action" data-phone-action="add">Add Phone</span>
                         </div>
                         <div id="phone_wrapper">
@@ -992,6 +993,10 @@ function phoneHandler(sender, sender_id) {
 
     function addRow(data) {
         var phone_data = JSON.parse(data);
+        document.getElementById('phone_message').innerHTML = phone_data.message;
+        if (phone_data.success == 'False'){
+            return;
+        }
         var row = row_body.insertRow(-1);
         var edit_cell = row.insertCell(0);
         var cid_cell = row.insertCell(1);

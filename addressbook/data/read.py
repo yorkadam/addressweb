@@ -23,6 +23,7 @@ from addressbook.models.codes import *
 from addressbook.models.contacts import *
 from addressbook.models.identities import *
 from addressbook.models.people import *
+import re
 
 # TODO: add more meaningful results other than True and False for results and exceptions
 
@@ -509,7 +510,7 @@ def search_people_1(search_type, search_value):
                       "FROM person p "
                       "JOIN contact c on c.personid = p.personid "
                       "JOIN phone  ph on ph.contactid = c.contactid "
-                      "WHERE ph.areacode || ph.exchange || ph.trunk = ?;", (search_value,))
+                      "WHERE ph.areacode || ph.exchange || ph.trunk = ?;", (re.sub("[^0-9]", "", search_value),))
 
         if search_type == "Email":
             c.execute("SELECT DISTINCT p.personid, p.firstname, p.lastname,   p.middleinitial, p.nickname,"
